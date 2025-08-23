@@ -10,6 +10,10 @@ import (
 // PlainHandler prints only the message text
 type PlainHandler struct{ w io.Writer }
 
+func NewPlainHandler(w io.Writer) *PlainHandler {
+	return &PlainHandler{w: w}
+}
+
 // Enabled checks if the handler is enabled for the given log level
 func (h *PlainHandler) Enabled(_ context.Context, _ slog.Level) bool { return true }
 

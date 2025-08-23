@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"os"
 	"time"
 
 	"github.com/engmtcdrm/go-ansi"
@@ -27,6 +28,17 @@ func levelString(l slog.Level) string {
 // FileHandler strips ANSI codes and prepends datetime
 type FileHandler struct {
 	w io.Writer
+}
+
+func NewFileHandler(filePath string) *FileHandler {
+	f, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return nil
+	}
+
+	return &FileHandler{
+		w: f,
+	}
 }
 
 // Enabled checks if the handler is enabled for the given log level
