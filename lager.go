@@ -5,46 +5,41 @@ import (
 	"log/slog"
 	"os"
 	"strings"
-
-	slogmulti "github.com/samber/slog-multi"
 )
 
-const LevelTrace slog.Level = -8
+const (
+	LevelTrace   = slog.Level(-8)
+	LevelDebug   = slog.LevelDebug
+	LevelInfo    = slog.LevelInfo
+	LevelWarning = slog.LevelWarn
+	LevelError   = slog.LevelError
+)
 
 // logDebug controls whether debug messages are logged
-var logDebug = false
+// var logDebug = false
 
-func Init(logFileNm string, debug bool) *os.File {
-	logDebug = debug
+func Init(logFileNm string, debug bool) (*os.File, error) {
+	// logDebug = debug
 
-	// Open log file
-	logFile, err := os.OpenFile(logFileNm, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+	f, err := os.OpenFile(logFileNm, os.O_APPEND|os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	// Define various logging routs
-	router := slogmulti.Router().
-		Add(&PlainHandler{os.Stdout}, func(_ context.Context, r slog.Record) bool {
-			return r.Level == slog.LevelInfo
-		}).
-		Add(&PlainHandler{os.Stderr}, func(_ context.Context, r slog.Record) bool {
-			if !logDebug && r.Level == slog.LevelDebug {
-				return false
-			}
-			return r.Level != slog.LevelInfo
-		}).
-		Add(&FileHandler{w: logFile}, func(_ context.Context, r slog.Record) bool {
-			if !logDebug && r.Level == slog.LevelDebug {
-				return false
-			}
-			return true
-		})
+	handlerStdout := NewStdoutHandler(nil)
+	handlerStderr := NewStderrHandler(nil)
+	handlerFile := NewFileHandler(f, nil)
 
-	logger := slog.New(router.Handler())
+	handlerMulti := NewMultiHandler(
+		handlerStdout,
+		handlerStderr,
+		handlerFile,
+	)
+
+	logger := slog.New(handlerMulti)
 	slog.SetDefault(logger)
 
-	return logFile
+	return f, nil
 }
 
 func Debug(msg string, args ...any) {
