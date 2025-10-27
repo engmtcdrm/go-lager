@@ -2,34 +2,9 @@ package main
 
 import (
 	"log/slog"
-	"os"
 
 	"github.com/engmtcdrm/go-lager"
 )
-
-type Manager struct {
-	fileLogger   *slog.Logger
-	stdoutLogger *slog.Logger
-	stderrLogger *slog.Logger
-}
-
-func NewManager(filepath string) *Manager {
-	fileLogger := lager.NewFileHandler(filepath)
-	stdoutLogger := lager.NewPlainHandler(os.Stdout)
-	stderrLogger := lager.NewPlainHandler(os.Stderr)
-
-	return &Manager{
-		fileLogger:   slog.New(fileLogger),
-		stdoutLogger: slog.New(stdoutLogger),
-		stderrLogger: slog.New(stderrLogger),
-	}
-}
-
-func (m *Manager) Info(msg string, args ...any) {
-	m.fileLogger.Info(msg, args...)
-	m.stdoutLogger.Info(msg, args...)
-	m.stderrLogger.Info(msg, args...)
-}
 
 func main() {
 	// debug := flag.Bool("debug", false, "enable debug logging")
@@ -40,9 +15,21 @@ func main() {
 
 	// indent := 4
 
-	m := NewManager("___app.log")
+	// m := NewManager("___app.log")
 
-	m.Info("does this work")
+	// m.Info("does this work")
+
+	f, err := lager.Init("___app.log", false)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	lager.Info("testing slog info")
+	lager.Error("testing slog error")
+	lager.Debug("testing slog debug")
+	lager.Warn("testing slog warn")
+	lager.Trace("testing slog trace")
 
 	// lager.Trace("Application started")
 	// lager.Debug("This is a debug message")
@@ -54,7 +41,7 @@ func main() {
 	// logger := slog.New(ph)
 	// logger.WithGroup("main")
 	// logger.Info("This is a key check", slog.Int("indent", indent))
-	// logger.Info("This is a key check")
+	slog.Info("This is a key check")
 	// lager.Info("We made it!")
 	// lager.InfoIndent("This is indented info", indent)
 	// lager.Info("")
