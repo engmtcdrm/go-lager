@@ -1,10 +1,10 @@
 .PHONY: build runexe run
 
 build:
-	echo "Size before build:"; ls -la example |grep example; ls -lh example |grep example; echo "\n\nSize after build:"; go build --ldflags "-s -w" -o example/example ./example; ls -la example |grep example; ls -lh example |grep example
+	echo "Size before build:"; ls -la examples |grep examples; ls -lh examples |grep examples; echo "\n\nSize after build:"; go build --ldflags "-s -w" -o examples/examples ./examples; ls -la examples |grep examples; ls -lh examples |grep examples
 
 runexe:
-	./example/example
+	./examples/examples
 
 run:
-	go run ./example/main.go
+	go run ./examples/main.go
