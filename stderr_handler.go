@@ -13,15 +13,34 @@ type StderrHandler struct {
 
 func NewStderrHandler(opts *Options) *StderrHandler {
 	if opts == nil {
-		enablers := []func(ctx context.Context, level slog.Level) bool{}
+		opts = &Options{}
+	}
 
-		enablers = append(enablers, func(ctx context.Context, level slog.Level) bool {
-			return level == slog.LevelInfo
+	if opts.Level == nil {
+		opts.Level = slog.LevelWarn
+	}
+
+	if opts.Enablers == nil {
+		opts.Enablers = []func(ctx context.Context, level slog.Level) bool{}
+	}
+
+	opts.Enablers = append(opts.Enablers, func(ctx context.Context, level slog.Level) bool {
+		return level != LevelInfo
+	})
+
+	switch opts.Level {
+	case LevelDebug:
+		opts.Enablers = append(opts.Enablers, func(ctx context.Context, level slog.Level) bool {
+			return level >= LevelDebug
 		})
-
-		opts = &Options{
-			Enablers: enablers,
-		}
+	case LevelTrace:
+		opts.Enablers = append(opts.Enablers, func(ctx context.Context, level slog.Level) bool {
+			return level >= LevelTrace
+		})
+	default:
+		opts.Enablers = append(opts.Enablers, func(ctx context.Context, level slog.Level) bool {
+			return level >= LevelWarning
+		})
 	}
 
 	h := NewStreamHandler(os.Stderr, opts)
@@ -40,9 +59,15 @@ func (h *StderrHandler) Enabled(ctx context.Context, level slog.Level) bool {
 
 // Handle processes a log record and writes the message to the handler's output
 func (h *StderrHandler) Handle(ctx context.Context, r slog.Record) error {
+	fullMsg := fmt.Sprintf("%s\n", r.Message)
+	// Create a buffer to hold the final output
+	buf := make([]byte, 0, 512)
+	buf = append(buf, fullMsg...)
+
+	// Write to the file
 	h.streamHandler.mu.Lock()
 	defer h.streamHandler.mu.Unlock()
-	_, err := fmt.Fprintf(h.streamHandler.w, "%s\n", r.Message)
+	_, err := h.streamHandler.w.Write(buf)
 	return err
 }
 

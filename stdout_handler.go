@@ -13,16 +13,20 @@ type StdoutHandler struct {
 
 func NewStdoutHandler(opts *Options) *StdoutHandler {
 	if opts == nil {
-		enablers := []func(ctx context.Context, level slog.Level) bool{}
-
-		enablers = append(enablers, func(ctx context.Context, level slog.Level) bool {
-			return level != slog.LevelInfo
-		})
-
-		opts = &Options{
-			Enablers: enablers,
-		}
+		opts = &Options{}
 	}
+
+	if opts.Level == nil {
+		opts.Level = slog.LevelInfo
+	}
+
+	if opts.Enablers == nil {
+		opts.Enablers = []func(ctx context.Context, level slog.Level) bool{}
+	}
+
+	opts.Enablers = append(opts.Enablers, func(ctx context.Context, level slog.Level) bool {
+		return level == slog.LevelInfo
+	})
 
 	h := NewStreamHandler(os.Stdout, opts)
 
@@ -40,9 +44,15 @@ func (h *StdoutHandler) Enabled(ctx context.Context, level slog.Level) bool {
 
 // Handle processes a log record and writes the message to the handler's output
 func (h *StdoutHandler) Handle(ctx context.Context, r slog.Record) error {
+	fullMsg := fmt.Sprintf("%s\n", r.Message)
+	// Create a buffer to hold the final output
+	buf := make([]byte, 0, 512)
+	buf = append(buf, fullMsg...)
+
+	// Write to the file
 	h.streamHandler.mu.Lock()
 	defer h.streamHandler.mu.Unlock()
-	_, err := fmt.Fprintf(h.streamHandler.w, "%s\n", r.Message)
+	_, err := h.streamHandler.w.Write(buf)
 	return err
 }
 

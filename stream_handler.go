@@ -25,11 +25,7 @@ func NewStreamHandler(w io.Writer, opts *Options) *StreamHandler {
 	}
 
 	if h.opts.Level == nil {
-		h.opts.Level = slog.LevelInfo
-	}
-
-	if h.opts.Enablers == nil {
-		h.opts.Enablers = []func(ctx context.Context, level slog.Level) bool{}
+		h.opts.Level = LevelInfo
 	}
 	return h
 }
@@ -51,8 +47,11 @@ func (h *StreamHandler) Enabled(ctx context.Context, level slog.Level) bool {
 
 // Handle processes a log record and writes the message to the handler's output
 func (h *StreamHandler) Handle(ctx context.Context, r slog.Record) error {
+	// Create a buffer to hold the final output
 	buf := make([]byte, 0, 512)
 	buf = append(buf, r.Message...)
+
+	// Write to stream
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	_, err := h.w.Write(buf)
