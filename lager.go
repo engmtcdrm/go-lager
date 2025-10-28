@@ -15,20 +15,22 @@ const (
 	LevelError   = slog.LevelError
 )
 
-// logDebug controls whether debug messages are logged
-// var logDebug = false
+func trace(msg string, args ...any) {
+	slog.Default().Log(context.Background(), LevelTrace, msg, args...)
+}
 
-func Init(logFileNm string, debug bool) (*os.File, error) {
-	// logDebug = debug
-
+func Init(logFileNm string, level slog.Leveler) (*os.File, error) {
 	f, err := os.OpenFile(logFileNm, os.O_APPEND|os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
 		return nil, err
 	}
 
+	opts := &Options{Level: level}
+	opts2 := *opts
+
 	handlerStdout := NewStdoutHandler(nil)
-	handlerStderr := NewStderrHandler(nil)
-	handlerFile := NewFileHandler(f, nil)
+	handlerStderr := NewStderrHandler(opts)
+	handlerFile := NewFileHandler(f, &opts2)
 
 	handlerMulti := NewMultiHandler(
 		handlerStdout,
@@ -42,32 +44,16 @@ func Init(logFileNm string, debug bool) (*os.File, error) {
 	return f, nil
 }
 
-func Debug(msg string, args ...any) {
-	slog.Debug(msg, args...)
-}
-
 func DebugIndent(msg string, indent int, args ...any) {
 	slog.Debug(strings.Repeat(" ", indent)+msg, args...)
-}
-
-func Error(msg string, args ...any) {
-	slog.Error(msg, args...)
 }
 
 func ErrorIndent(msg string, indent int, args ...any) {
 	slog.Error(strings.Repeat(" ", indent)+msg, args...)
 }
 
-func Info(msg string, args ...any) {
-	slog.Info(msg, args...)
-}
-
 func InfoIndent(msg string, indent int, args ...any) {
 	slog.Info(strings.Repeat(" ", indent)+msg, args...)
-}
-
-func trace(msg string, args ...any) {
-	slog.Default().Log(context.Background(), LevelTrace, msg, args...)
 }
 
 func Trace(msg string, args ...any) {
@@ -76,10 +62,6 @@ func Trace(msg string, args ...any) {
 
 func TraceIndent(msg string, indent int, args ...any) {
 	trace(strings.Repeat(" ", indent)+msg, args...)
-}
-
-func Warn(msg string, args ...any) {
-	slog.Warn(msg, args...)
 }
 
 func WarnIndent(msg string, indent int, args ...any) {
