@@ -9,7 +9,12 @@ type Options struct {
 	// Level reports the minimum level to log.
 	// Levels with lower levels are discarded.
 	// If nil, the Handler uses [slog.LevelInfo].
-	Level    slog.Leveler
+	Level slog.Leveler
+
+	// Enablers is a list of functions that determine whether a log
+	// record should be logged. If any function returns false,
+	// the record is discarded. If nil or empty, only the Level
+	// field is used to determine whether to log a record.
 	Enablers []func(ctx context.Context, level slog.Level) bool
 
 	// ReplaceAttr is called to rewrite each non-group attribute before it is logged.
