@@ -2,18 +2,16 @@ package lager
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
-	"os"
 )
 
 type StdoutHandler struct {
-	streamHandler StreamHandler
+	streamHandler streamHandler
 }
 
-func NewStdoutHandler(opts *Options) *StdoutHandler {
+func NewStdoutHandler(opts *HandlerOptions) *StdoutHandler {
 	if opts == nil {
-		opts = &Options{}
+		opts = &HandlerOptions{}
 	}
 
 	if opts.Level == nil {
@@ -28,13 +26,11 @@ func NewStdoutHandler(opts *Options) *StdoutHandler {
 		return level == slog.LevelInfo
 	})
 
-	h := NewStreamHandler(os.Stdout, opts)
+	sh := newStreamHandler(StreamStdout, opts)
 
-	h2 := &StdoutHandler{
-		streamHandler: *h,
+	return &StdoutHandler{
+		streamHandler: *sh,
 	}
-
-	return h2
 }
 
 // Enabled checks if the handler is enabled for the given log level
@@ -44,20 +40,15 @@ func (h *StdoutHandler) Enabled(ctx context.Context, level slog.Level) bool {
 
 // Handle processes a log record and writes the message to the handler's output
 func (h *StdoutHandler) Handle(ctx context.Context, r slog.Record) error {
-	fullMsg := fmt.Sprintf("%s\n", r.Message)
-	// Create a buffer to hold the final output
-	buf := make([]byte, 0, 512)
-	buf = append(buf, fullMsg...)
-
-	// Write to the file
-	h.streamHandler.mu.Lock()
-	defer h.streamHandler.mu.Unlock()
-	_, err := h.streamHandler.w.Write(buf)
-	return err
+	return h.streamHandler.Handle(ctx, r)
 }
 
 // WithAttrs returns a new handler with the given attributes added
-func (h *StdoutHandler) WithAttrs([]slog.Attr) slog.Handler { return h }
+func (h *StdoutHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
+	return h.streamHandler.WithAttrs(attrs)
+}
 
 // WithGroup returns a new handler with the given group name
-func (h *StdoutHandler) WithGroup(string) slog.Handler { return h }
+func (h *StdoutHandler) WithGroup(name string) slog.Handler {
+	return h.streamHandler.WithGroup(name)
+}

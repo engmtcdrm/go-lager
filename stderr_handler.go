@@ -2,18 +2,16 @@ package lager
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
-	"os"
 )
 
 type StderrHandler struct {
-	streamHandler StreamHandler
+	streamHandler streamHandler
 }
 
-func NewStderrHandler(opts *Options) *StderrHandler {
+func NewStderrHandler(opts *HandlerOptions) *StderrHandler {
 	if opts == nil {
-		opts = &Options{}
+		opts = &HandlerOptions{}
 	}
 
 	if opts.Level == nil {
@@ -24,10 +22,12 @@ func NewStderrHandler(opts *Options) *StderrHandler {
 		opts.Enablers = []func(ctx context.Context, level slog.Level) bool{}
 	}
 
+	// Never write info level to stderr
 	opts.Enablers = append(opts.Enablers, func(ctx context.Context, level slog.Level) bool {
 		return level != LevelInfo
 	})
 
+	// Based on the specified log level, add appropriate enablers
 	switch opts.Level {
 	case LevelDebug:
 		opts.Enablers = append(opts.Enablers, func(ctx context.Context, level slog.Level) bool {
@@ -43,13 +43,11 @@ func NewStderrHandler(opts *Options) *StderrHandler {
 		})
 	}
 
-	h := NewStreamHandler(os.Stderr, opts)
+	sh := newStreamHandler(StreamStderr, opts)
 
-	h2 := &StderrHandler{
-		streamHandler: *h,
+	return &StderrHandler{
+		streamHandler: *sh,
 	}
-
-	return h2
 }
 
 // Enabled checks if the handler is enabled for the given log level
@@ -59,20 +57,15 @@ func (h *StderrHandler) Enabled(ctx context.Context, level slog.Level) bool {
 
 // Handle processes a log record and writes the message to the handler's output
 func (h *StderrHandler) Handle(ctx context.Context, r slog.Record) error {
-	fullMsg := fmt.Sprintf("%s\n", r.Message)
-	// Create a buffer to hold the final output
-	buf := make([]byte, 0, 512)
-	buf = append(buf, fullMsg...)
-
-	// Write to the file
-	h.streamHandler.mu.Lock()
-	defer h.streamHandler.mu.Unlock()
-	_, err := h.streamHandler.w.Write(buf)
-	return err
+	return h.streamHandler.Handle(ctx, r)
 }
 
 // WithAttrs returns a new handler with the given attributes added
-func (h *StderrHandler) WithAttrs([]slog.Attr) slog.Handler { return h }
+func (h *StderrHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
+	return h.streamHandler.WithAttrs(attrs)
+}
 
 // WithGroup returns a new handler with the given group name
-func (h *StderrHandler) WithGroup(string) slog.Handler { return h }
+func (h *StderrHandler) WithGroup(name string) slog.Handler {
+	return h.streamHandler.WithGroup(name)
+}
