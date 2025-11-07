@@ -5,10 +5,31 @@ import (
 	"log/slog"
 )
 
-type Options struct {
+type HandlerOptions struct {
+	// AddTime causes the handler to include the timestamp in the output.
+	AddTime bool
+
+	// AddLevel causes the handler to include the log level in the output.
+	AddLevel bool
+
+	// AddSource causes the handler to compute the source code position
+	// of the log statement and add a SourceKey attribute to the output.
+	AddSource bool
+
+	// AddAttrs causes the handler to include the attributes in the output.
+	AddAttrs bool
+
+	// AddGroups causes the handler to include the groups in the output.
+	AddGroups bool
+
+	// NoColor causes the handler to strip ANSI escape codes from the
+	// output.
+	NoColor bool
+
 	// Level reports the minimum level to log.
 	// Levels with lower levels are discarded.
 	// If nil, the Handler uses [slog.LevelInfo].
+	// This field is ignored if Enablers is not nil.
 	Level slog.Leveler
 
 	// Enablers is a list of functions that determine whether a log
