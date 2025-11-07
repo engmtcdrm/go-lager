@@ -25,7 +25,7 @@ func Init(logFileNm string, level slog.Leveler) (*os.File, error) {
 		return nil, err
 	}
 
-	opts := &Options{Level: level}
+	opts := &HandlerOptions{Level: level}
 	opts2 := *opts
 
 	handlerStdout := NewStdoutHandler(nil)
