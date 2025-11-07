@@ -29,13 +29,13 @@ func levelString(l slog.Level) string {
 type FileHandler struct {
 	w          io.Writer
 	mu         *sync.Mutex
-	opts       Options
+	opts       HandlerOptions
 	timeFormat string
 }
 
-func NewFileHandler(w io.Writer, opts *Options) *FileHandler {
+func NewFileHandler(w io.Writer, opts *HandlerOptions) *FileHandler {
 	if opts == nil {
-		opts = &Options{}
+		opts = &HandlerOptions{}
 	}
 
 	if opts.Level == nil {
@@ -46,7 +46,7 @@ func NewFileHandler(w io.Writer, opts *Options) *FileHandler {
 		w:          w,
 		mu:         &sync.Mutex{},
 		opts:       *opts,
-		timeFormat: "2006-01-02 15:04:05.000000",
+		timeFormat: time.RFC3339,
 	}
 }
 
