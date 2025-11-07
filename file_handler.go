@@ -68,13 +68,12 @@ func (h *FileHandler) Enabled(ctx context.Context, level slog.Level) bool {
 // Handle processes a log record and writes it to the file
 func (h *FileHandler) Handle(ctx context.Context, r slog.Record) error {
 	msg := ansi.StripCodes(r.Message)
-	timestamp := time.Now().Format(h.timeFormat)
 	var fullMsg string
 
 	if r.Level == LevelInfo {
-		fullMsg = fmt.Sprintf("%s - %s\n", timestamp, msg)
+		fullMsg = fmt.Sprintf("%s - %s\n", r.Time.Round(0).Format(h.timeFormat), msg)
 	} else {
-		fullMsg = fmt.Sprintf("%s - %-5s: %s\n", timestamp, levelString(r.Level), msg)
+		fullMsg = fmt.Sprintf("%s - %-5s: %s\n", r.Time.Round(0).Format(h.timeFormat), levelString(r.Level), msg)
 	}
 
 	// Create a buffer to hold the final output
