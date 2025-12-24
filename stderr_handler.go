@@ -6,7 +6,7 @@ import (
 )
 
 type StderrHandler struct {
-	streamHandler streamHandler
+	streamHandler StreamHandler
 }
 
 func NewStderrHandler(opts *HandlerOptions) *StderrHandler {
@@ -43,7 +43,7 @@ func NewStderrHandler(opts *HandlerOptions) *StderrHandler {
 		})
 	}
 
-	sh := newStreamHandler(StreamStderr, opts)
+	sh := NewStreamHandler(StreamStderr, opts)
 
 	return &StderrHandler{
 		streamHandler: *sh,

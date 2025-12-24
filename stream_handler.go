@@ -20,15 +20,15 @@ const (
 	StreamStderr
 )
 
-// streamHandler prints only the message text
-type streamHandler struct {
+// StreamHandler prints only the message text
+type StreamHandler struct {
 	w    io.Writer
 	mu   *sync.Mutex
 	opts HandlerOptions
 }
 
-// newStreamHandler creates a new StreamHandler with the given writer and options
-func newStreamHandler(st StreamType, opts *HandlerOptions) *streamHandler {
+// NewStreamHandler creates a new StreamHandler with the given writer and options
+func NewStreamHandler(st StreamType, opts *HandlerOptions) *StreamHandler {
 	if opts == nil {
 		opts = &HandlerOptions{}
 	}
@@ -40,7 +40,7 @@ func newStreamHandler(st StreamType, opts *HandlerOptions) *streamHandler {
 		w = os.Stderr
 	}
 
-	return &streamHandler{
+	return &StreamHandler{
 		w:    w,
 		mu:   &sync.Mutex{},
 		opts: *opts,
@@ -48,7 +48,7 @@ func newStreamHandler(st StreamType, opts *HandlerOptions) *streamHandler {
 }
 
 // Enabled checks if the handler is enabled for the given log level
-func (h *streamHandler) Enabled(ctx context.Context, level slog.Level) bool {
+func (h *StreamHandler) Enabled(ctx context.Context, level slog.Level) bool {
 	minLevel := LevelInfo
 	if h.opts.Level != nil {
 		minLevel = h.opts.Level.Level()
@@ -68,9 +68,9 @@ func (h *streamHandler) Enabled(ctx context.Context, level slog.Level) bool {
 }
 
 // Handle processes a log record and writes the message to the handler's output
-func (h *streamHandler) Handle(ctx context.Context, r slog.Record) error {
+func (h *StreamHandler) Handle(ctx context.Context, r slog.Record) error {
 	// Create a buffer to hold the final output
-	buf := make([]byte, 0, 512)
+	buf := make([]byte, 0, 1024)
 
 	if h.opts.AddTime && !r.Time.IsZero() {
 		buf = append(buf, r.Time.Round(0).Format(time.RFC3339)...)
@@ -78,8 +78,23 @@ func (h *streamHandler) Handle(ctx context.Context, r slog.Record) error {
 	}
 
 	if h.opts.AddLevel {
-		buf = append(buf, levelString(r.Level)...)
-		buf = append(buf, ": "...)
+		levelStr := levelString(r.Level) + ": "
+		switch r.Level {
+		case LevelTrace:
+			levelStr = TraceTransformFunc(levelStr)
+		case LevelDebug:
+			levelStr = DebugTransformFunc(levelStr)
+		case LevelInfo:
+			levelStr = InfoTransformFunc(levelStr)
+		case LevelWarning:
+			levelStr = WarnTransformFunc(levelStr)
+		case LevelError:
+			levelStr = ErrorTransformFunc(levelStr)
+		default:
+			levelStr = r.Level.String()
+		}
+
+		buf = append(buf, levelStr...)
 	}
 
 	if h.opts.AddSource && r.PC != 0 {
@@ -103,11 +118,11 @@ func (h *streamHandler) Handle(ctx context.Context, r slog.Record) error {
 }
 
 // WithAttrs returns a new handler with the given attributes added
-func (h *streamHandler) WithAttrs([]slog.Attr) slog.Handler {
+func (h *StreamHandler) WithAttrs([]slog.Attr) slog.Handler {
 	return h
 }
 
 // WithGroup returns a new handler with the given group name
-func (h *streamHandler) WithGroup(string) slog.Handler {
+func (h *StreamHandler) WithGroup(string) slog.Handler {
 	return h
 }

@@ -6,7 +6,7 @@ import (
 )
 
 type StdoutHandler struct {
-	streamHandler streamHandler
+	streamHandler StreamHandler
 }
 
 func NewStdoutHandler(opts *HandlerOptions) *StdoutHandler {
@@ -26,7 +26,7 @@ func NewStdoutHandler(opts *HandlerOptions) *StdoutHandler {
 		return level == slog.LevelInfo
 	})
 
-	sh := newStreamHandler(StreamStdout, opts)
+	sh := NewStreamHandler(StreamStdout, opts)
 
 	return &StdoutHandler{
 		streamHandler: *sh,
