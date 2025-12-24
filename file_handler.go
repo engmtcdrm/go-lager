@@ -11,28 +11,15 @@ import (
 	"github.com/engmtcdrm/go-ansi"
 )
 
-func levelString(l slog.Level) string {
-	if l < slog.LevelDebug {
-		str := func(base string, val slog.Level) string {
-			if val == 0 {
-				return base
-			}
-			return fmt.Sprintf("%s%+d", base, val)
-		}
-		return str("TRACE", l-LevelTrace)
-	}
-
-	return l.String()
-}
-
-// FileHandler strips ANSI codes and prepends datetime
+// FileHandler is a handler that writes log messages to a specified file or
+// io.Writer, stripping ANSI escape codes from the messages.
 type FileHandler struct {
-	w          io.Writer
-	mu         *sync.Mutex
-	opts       HandlerOptions
-	timeFormat string
+	w    io.Writer
+	mu   *sync.Mutex
+	opts HandlerOptions
 }
 
+// NewFileHandler creates a new [FileHandler] with the given [io.Writer] and [HandlerOptions].
 func NewFileHandler(w io.Writer, opts *HandlerOptions) *FileHandler {
 	if opts == nil {
 		opts = &HandlerOptions{}
@@ -42,11 +29,14 @@ func NewFileHandler(w io.Writer, opts *HandlerOptions) *FileHandler {
 		opts.Level = LevelInfo
 	}
 
+	if opts.TimeFormat == "" {
+		opts.TimeFormat = time.RFC3339
+	}
+
 	return &FileHandler{
-		w:          w,
-		mu:         &sync.Mutex{},
-		opts:       *opts,
-		timeFormat: time.RFC3339,
+		w:    w,
+		mu:   &sync.Mutex{},
+		opts: *opts,
 	}
 }
 
@@ -67,18 +57,29 @@ func (h *FileHandler) Enabled(ctx context.Context, level slog.Level) bool {
 
 // Handle processes a log record and writes it to the file
 func (h *FileHandler) Handle(ctx context.Context, r slog.Record) error {
-	msg := ansi.StripCodes(r.Message)
-	var fullMsg string
-
-	if r.Level == LevelInfo {
-		fullMsg = fmt.Sprintf("%s - %s\n", r.Time.Round(0).Format(h.timeFormat), msg)
-	} else {
-		fullMsg = fmt.Sprintf("%s - %-5s: %s\n", r.Time.Round(0).Format(h.timeFormat), levelString(r.Level), msg)
-	}
-
 	// Create a buffer to hold the final output
 	buf := make([]byte, 0, 1024)
-	buf = append(buf, fullMsg...)
+
+	if h.opts.AddTime && !r.Time.IsZero() {
+		buf = append(buf, r.Time.Round(0).Format(h.opts.TimeFormat)...)
+		buf = append(buf, " - "...)
+	}
+
+	if h.opts.AddLevel {
+		buf = append(buf, fmt.Sprintf("%-5s - ", levelString(r.Level))...)
+	}
+
+	if h.opts.AddSource && r.Level < LevelInfo {
+		src := r.Source()
+		if src == nil {
+			src = &slog.Source{}
+		}
+		buf = append(buf, slog.String(slog.SourceKey, fmt.Sprintf("- %s:%d", src.File, src.Line)).Value.String()...)
+		buf = append(buf, " - "...)
+	}
+
+	msg := ansi.StripCodes(r.Message)
+	buf = append(buf, msg+"\n"...)
 
 	// Write to the file
 	h.mu.Lock()
@@ -88,14 +89,11 @@ func (h *FileHandler) Handle(ctx context.Context, r slog.Record) error {
 }
 
 // WithAttrs adds attributes to the handler
-func (h *FileHandler) WithAttrs(attrs []slog.Attr) slog.Handler { return h }
+func (h *FileHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
+	return h
+}
 
 // WithGroup adds a group name to the handler
-func (h *FileHandler) WithGroup(name string) slog.Handler { return h }
-
-func (h *FileHandler) TimeFormat(format string) *FileHandler {
-	if format != "" {
-		h.timeFormat = format
-	}
+func (h *FileHandler) WithGroup(name string) slog.Handler {
 	return h
 }
