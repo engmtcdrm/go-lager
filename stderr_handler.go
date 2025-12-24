@@ -50,9 +50,7 @@ func NewStderrHandler(opts *HandlerOptions) *StderrHandler {
 
 	sh := NewStreamHandler(StreamStderr, opts)
 
-	return &StderrHandler{
-		streamHandler: *sh,
-	}
+	return &StderrHandler{streamHandler: *sh}
 }
 
 // Enabled checks if the handler is enabled for the given log level
