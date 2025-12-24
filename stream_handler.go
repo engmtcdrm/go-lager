@@ -6,7 +6,6 @@ import (
 	"io"
 	"log/slog"
 	"os"
-	"runtime"
 	"sync"
 	"time"
 
@@ -20,17 +19,25 @@ const (
 	StreamStderr
 )
 
-// StreamHandler prints only the message text
+// StreamHandler is a handler that writes log messages to a specified stream (stdout or stderr)
 type StreamHandler struct {
 	w    io.Writer
 	mu   *sync.Mutex
 	opts HandlerOptions
 }
 
-// NewStreamHandler creates a new StreamHandler with the given writer and options
+// NewStreamHandler creates a new [StreamHandler] with the given [StreamType] and [HandlerOptions].
 func NewStreamHandler(st StreamType, opts *HandlerOptions) *StreamHandler {
 	if opts == nil {
 		opts = &HandlerOptions{}
+	}
+
+	if opts.Level == nil {
+		opts.Level = LevelInfo
+	}
+
+	if opts.TimeFormat == "" {
+		opts.TimeFormat = time.RFC3339
 	}
 
 	var w io.Writer
@@ -73,7 +80,7 @@ func (h *StreamHandler) Handle(ctx context.Context, r slog.Record) error {
 	buf := make([]byte, 0, 1024)
 
 	if h.opts.AddTime && !r.Time.IsZero() {
-		buf = append(buf, r.Time.Round(0).Format(time.RFC3339)...)
+		buf = append(buf, r.Time.Round(0).Format(h.opts.TimeFormat)...)
 		buf = append(buf, " - "...)
 	}
 
@@ -81,15 +88,15 @@ func (h *StreamHandler) Handle(ctx context.Context, r slog.Record) error {
 		levelStr := levelString(r.Level) + ": "
 		switch r.Level {
 		case LevelTrace:
-			levelStr = TraceTransformFunc(levelStr)
+			levelStr = TraceLevelFunc(levelStr)
 		case LevelDebug:
-			levelStr = DebugTransformFunc(levelStr)
+			levelStr = DebugLevelFunc(levelStr)
 		case LevelInfo:
-			levelStr = InfoTransformFunc(levelStr)
+			levelStr = InfoLevelFunc(levelStr)
 		case LevelWarning:
-			levelStr = WarnTransformFunc(levelStr)
+			levelStr = WarnLevelFunc(levelStr)
 		case LevelError:
-			levelStr = ErrorTransformFunc(levelStr)
+			levelStr = ErrorLevelFunc(levelStr)
 		default:
 			levelStr = r.Level.String()
 		}
@@ -97,10 +104,12 @@ func (h *StreamHandler) Handle(ctx context.Context, r slog.Record) error {
 		buf = append(buf, levelStr...)
 	}
 
-	if h.opts.AddSource && r.PC != 0 {
-		fs := runtime.CallersFrames([]uintptr{r.PC})
-		f, _ := fs.Next()
-		buf = append(buf, slog.String(slog.SourceKey, fmt.Sprintf("%s:%d", f.File, f.Line)).Value.String()...)
+	if h.opts.AddSource && r.Level < LevelInfo {
+		src := r.Source()
+		if src == nil {
+			src = &slog.Source{}
+		}
+		buf = append(buf, slog.String(slog.SourceKey, fmt.Sprintf("- %s:%d", src.File, src.Line)).Value.String()...)
 		buf = append(buf, " - "...)
 	}
 
