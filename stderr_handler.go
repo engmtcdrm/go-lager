@@ -5,10 +5,15 @@ import (
 	"log/slog"
 )
 
+// StderrHandler is a handler that writes log messages to standard error (stderr).
+//
+// It filters out [LevelInfo] messages and handles levels above and below based
+// on the specified log level in the options.
 type StderrHandler struct {
 	streamHandler StreamHandler
 }
 
+// NewStderrHandler creates a new [StderrHandler] with the given options
 func NewStderrHandler(opts *HandlerOptions) *StderrHandler {
 	if opts == nil {
 		opts = &HandlerOptions{}
@@ -22,7 +27,7 @@ func NewStderrHandler(opts *HandlerOptions) *StderrHandler {
 		opts.Enablers = []func(ctx context.Context, level slog.Level) bool{}
 	}
 
-	// Never write info level to stderr
+	// Never write [LevelInfo] to stderr
 	opts.Enablers = append(opts.Enablers, func(ctx context.Context, level slog.Level) bool {
 		return level != LevelInfo
 	})

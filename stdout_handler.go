@@ -5,10 +5,12 @@ import (
 	"log/slog"
 )
 
+// StdoutHandler is a handler that writes log messages to standard output (stdout)
 type StdoutHandler struct {
 	streamHandler StreamHandler
 }
 
+// NewStdoutHandler creates a new [StdoutHandler] with the given options
 func NewStdoutHandler(opts *HandlerOptions) *StdoutHandler {
 	if opts == nil {
 		opts = &HandlerOptions{}
@@ -22,15 +24,14 @@ func NewStdoutHandler(opts *HandlerOptions) *StdoutHandler {
 		opts.Enablers = []func(ctx context.Context, level slog.Level) bool{}
 	}
 
+	// Only write [LevelInfo] to stdout
 	opts.Enablers = append(opts.Enablers, func(ctx context.Context, level slog.Level) bool {
 		return level == slog.LevelInfo
 	})
 
 	sh := NewStreamHandler(StreamStdout, opts)
 
-	return &StdoutHandler{
-		streamHandler: *sh,
-	}
+	return &StdoutHandler{streamHandler: *sh}
 }
 
 // Enabled checks if the handler is enabled for the given log level
