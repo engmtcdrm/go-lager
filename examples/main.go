@@ -30,10 +30,15 @@ func main() {
 	defer f.Close()
 
 	slog.Error(ansi.Red + "[Output: FILE | STDERR]: Testing slog error message" + ansi.Reset)
+	lager.ErrorIndent(ansi.Red+"[Output: FILE | STDERR]: Testing slog error message"+ansi.Reset, 2)
 	slog.Warn(ansi.Yellow + "[Output: FILE | STDERR]: Testing slog warn message" + ansi.Reset)
-	slog.Info(ansi.Cyan + "[Output: FILE | STDOUT]: Testing slog info message" + ansi.Reset)
+	lager.WarnIndent(ansi.Yellow+"[Output: FILE | STDERR]: Testing slog warn message"+ansi.Reset, 2)
+	slog.Info("[Output: FILE | STDOUT]: Testing slog info message")
+	lager.InfoIndent("[Output: FILE | STDOUT]: Testing lager indented info message", 2)
 	slog.Debug(ansi.Green + "[Output: FILE | STDERR]: Testing slog debug message" + ansi.Reset)
+	lager.DebugIndent(ansi.Green+"[Output: FILE | STDERR]: Testing lager indented debug message"+ansi.Reset, 2)
 	lager.Trace(ansi.Magenta + "[Output: FILE | STDERR]: Testing slog trace message" + ansi.Reset)
+	lager.TraceIndent(ansi.Magenta+"[Output: FILE | STDERR]: Testing slog trace message"+ansi.Reset, 2)
 	fmt.Printf("[Output: %-13s]: Ignore all slogging\n", "STDOUT")
 	fmt.Fprintf(os.Stderr, "[Output: %-13s]: Ignore all slogging\n", "STDERR")
 }
