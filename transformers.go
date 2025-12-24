@@ -2,22 +2,29 @@ package lager
 
 import "github.com/engmtcdrm/go-ansi"
 
-var TraceTransformFunc = func(s string) string {
+// Transform functions for different log levels
+
+// TraceLevelFunc adds magenta color to [LevelTrace] level text in a log statement.
+var TraceLevelFunc = func(s string) string {
 	return ansi.Magenta + s + ansi.Reset
 }
 
-var DebugTransformFunc = func(s string) string {
+// DebugLevelFunc adds cyan color to [LevelDebug] level text in a log statement.
+var DebugLevelFunc = func(s string) string {
 	return ansi.Cyan + s + ansi.Reset
 }
 
-var InfoTransformFunc = func(s string) string {
+// InfoLevelFunc leaves [LevelInfo] level text in a log statement unmodified.
+var InfoLevelFunc = func(s string) string {
 	return s
 }
 
-var WarnTransformFunc = func(s string) string {
+// WarnLevelFunc adds yellow color to [LevelWarning] level text in a log statement.
+var WarnLevelFunc = func(s string) string {
 	return ansi.Yellow + s + ansi.Reset
 }
 
-var ErrorTransformFunc = func(s string) string {
+// ErrorLevelFunc adds red color to [LevelError] level text in a log statement.
+var ErrorLevelFunc = func(s string) string {
 	return ansi.Red + s + ansi.Reset
 }
