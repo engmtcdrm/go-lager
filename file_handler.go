@@ -77,7 +77,7 @@ func (h *FileHandler) Handle(ctx context.Context, r slog.Record) error {
 	}
 
 	// Create a buffer to hold the final output
-	buf := make([]byte, 0, 512)
+	buf := make([]byte, 0, 1024)
 	buf = append(buf, fullMsg...)
 
 	// Write to the file
