@@ -14,6 +14,9 @@ type HandlerOptions struct {
 
 	// AddSource causes the handler to compute the source code position
 	// of the log statement and add a SourceKey attribute to the output.
+	//
+	// Any log levels [LevelInfo] and above will not have source added to
+	// the log statement.
 	AddSource bool
 
 	// AddAttrs causes the handler to include the attributes in the output.
@@ -21,6 +24,10 @@ type HandlerOptions struct {
 
 	// AddGroups causes the handler to include the groups in the output.
 	AddGroups bool
+
+	// TimeFormat specifies the format for timestamps.
+	// If empty, [time.RFC3339] is used.
+	TimeFormat string
 
 	// NoColor causes the handler to strip ANSI escape codes from the
 	// output.
