@@ -1,10 +1,16 @@
-.PHONY: menv build runexe run rundebug runtrace
+.PHONY: menv test testv build runexe run rundebug runtrace
 
 PARENT_DIR := $(notdir $(CURDIR))
 
 menv:
 	@echo "Current directory: $(CURDIR)"
 	@echo "Parent directory name: $(PARENT_DIR)"
+
+test:
+	@go test ./...
+
+testv:
+	@go test -v ./...
 
 build:
 	@cd example; \
