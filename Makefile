@@ -1,22 +1,27 @@
-.PHONY: build runexe run rundebug runtrace
+.PHONY: menv build runexe run rundebug runtrace
+
+PARENT_DIR := $(notdir $(CURDIR))
+
+menv:
+	@echo "Current directory: $(CURDIR)"
+	@echo "Parent directory name: $(PARENT_DIR)"
 
 build:
-	@echo "Size before build:"; \
-	ls -la examples |grep examples; \
-	ls -lh examples |grep examples; \
+	@cd example; \
+	echo "Size before build:"; \
+	ls -la |grep 'example'; \
+	ls -lh |grep example; \
 	echo "\n\nSize after build:"; \
-	go build --ldflags "-s -w" -o examples/examples ./examples; \
-	ls -la examples |grep examples; \
-	ls -lh examples |grep examples
+	CGO_ENABLED=0 go build --ldflags "-s -w"; \
+	strip example; \
+	ls -la |grep example; \
+	ls -lh |grep example; \
+	cd ..
 
 runexe:
-	@./examples/examples
+	@./example/example
 
 run:
-	@go run ./examples/main.go
-
-rundebug:
-	@go run ./examples/main.go -d
-
-runtrace:
-	@go run ./examples/main.go -t
+	@cd example; \
+	go run main.go; \
+	cd ..
