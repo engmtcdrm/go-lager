@@ -16,12 +16,15 @@ func main() {
 	pardon.SetDefaultCursorFunc(func(cursor string) string { return pp.Yellow(cursor) })
 	pardon.SetDefaultSelectFunc(func(s string) string { return pp.Green(s) })
 
-	showExamples()
-	repeatPrompt()
+	cont := showExamples()
+
+	if cont {
+		repeatPrompt()
+	}
 }
 
 // showExamples displays a list of examples and allows the user to select one to run.
-func showExamples() {
+func showExamples() bool {
 	funcMap := map[string]func(){}
 	names := make([]pardon.Option[string], 0, len(examples.AllExamples))
 
@@ -43,7 +46,7 @@ func showExamples() {
 
 	if err := selectPrompt.Ask(); err != nil {
 		fmt.Printf("Error: %v\n", err)
-		return
+		return false
 	}
 
 	fmt.Println()
@@ -56,6 +59,8 @@ func showExamples() {
 	}
 
 	fmt.Println()
+
+	return true
 }
 
 func repeatPrompt() {
@@ -74,7 +79,7 @@ func repeatPrompt() {
 
 		if cont {
 			fmt.Println()
-			showExamples()
+			cont = showExamples()
 		}
 	}
 }
