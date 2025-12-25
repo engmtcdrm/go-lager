@@ -14,15 +14,15 @@ type Lager struct {
 	noFile     bool
 	noStdout   bool
 	noStderr   bool
-	logFileNm  string
+	logFile    string
 	optsFile   *HandlerOptions
 	optsStdout *HandlerOptions
 	optsStderr *HandlerOptions
 }
 
-func NewLager(level slog.Leveler, logFileNm string) *Lager {
+func NewLager(level slog.Leveler, logFile string) *Lager {
 	l := &Lager{
-		logFileNm: logFileNm,
+		logFile: logFile,
 		optsFile: &HandlerOptions{
 			Level:     level,
 			AddTime:   true,
@@ -37,10 +37,15 @@ func NewLager(level slog.Leveler, logFileNm string) *Lager {
 		},
 	}
 
-	if logFileNm == "" {
+	if logFile == "" {
 		l.noFile = true
 	}
 
+	return l
+}
+
+func (l *Lager) LogFile(logFile string) *Lager {
+	l.logFile = logFile
 	return l
 }
 
@@ -84,7 +89,7 @@ func (l *Lager) Init() (*os.File, error) {
 	var handlers []slog.Handler
 
 	if !l.noFile {
-		f, err = os.OpenFile(l.logFileNm, os.O_APPEND|os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+		f, err = os.OpenFile(l.logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 		if err != nil {
 			return nil, err
 		}
@@ -114,9 +119,9 @@ func (l *Lager) Init() (*os.File, error) {
 func (l *Lager) String() string {
 	s := strings.Builder{}
 	s.WriteString("Lager Settings:\n")
-	s.WriteString(fmt.Sprintf("  Log File Name: %s\n", l.logFileNm))
-	s.WriteString(fmt.Sprintf("  Log to File? %t\n", l.noFile))
-	s.WriteString(fmt.Sprintf("  Log to Stdout? %t\n", l.noStdout))
-	s.WriteString(fmt.Sprintf("  Log to Stderr? %t\n", l.noStderr))
+	s.WriteString(fmt.Sprintf("  Log File Name:    %s\n", l.logFile))
+	s.WriteString(fmt.Sprintf("  Log to File?      %t\n", !l.noFile))
+	s.WriteString(fmt.Sprintf("  Log to Stdout?    %t\n", !l.noStdout))
+	s.WriteString(fmt.Sprintf("  Log to Stderr?    %t\n", !l.noStderr))
 	return s.String()
 }
