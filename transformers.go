@@ -19,7 +19,7 @@ var InfoLevelFunc = func(s string) string {
 	return s
 }
 
-// WarnLevelFunc adds yellow color to [LevelWarning] level text in a log statement.
+// WarnLevelFunc adds yellow color to [LevelWarn] level text in a log statement.
 var WarnLevelFunc = func(s string) string {
 	return ansi.Yellow + s + ansi.Reset
 }

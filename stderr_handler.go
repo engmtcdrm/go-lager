@@ -44,7 +44,7 @@ func NewStderrHandler(opts *HandlerOptions) *StderrHandler {
 		})
 	default:
 		opts.Enablers = append(opts.Enablers, func(ctx context.Context, level slog.Level) bool {
-			return level >= LevelWarning
+			return level >= LevelWarn
 		})
 	}
 

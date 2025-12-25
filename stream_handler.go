@@ -93,7 +93,7 @@ func (h *StreamHandler) Handle(ctx context.Context, r slog.Record) error {
 			levelStr = DebugLevelFunc(levelStr)
 		case LevelInfo:
 			levelStr = InfoLevelFunc(levelStr)
-		case LevelWarning:
+		case LevelWarn:
 			levelStr = WarnLevelFunc(levelStr)
 		case LevelError:
 			levelStr = ErrorLevelFunc(levelStr)
