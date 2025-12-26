@@ -10,23 +10,29 @@ import (
 	pp "github.com/engmtcdrm/go-prettyprint"
 )
 
+// doLogging performs various logging operations to demonstrate the configured handlers.
 func doLogging() {
+	cFile := pp.Cyan("FILE")
+	cStdout := pp.Green("STDOUT")
+	cStderr := pp.Red("STDERR")
+
 	fmt.Println(pp.Cyan("Logging to various handlers...\n"))
-	slog.Error("[Output: FILE | STDERR]: Testing slog error message")
-	lager.ErrorIndent("[Output: FILE | STDERR]: Testing slog error message", 1)
-	slog.Warn("[Output: FILE | STDERR]: Testing slog warn message")
-	lager.WarnIndent("[Output: FILE | STDERR]: Testing slog warn message", 1)
-	slog.Info("[Output: FILE | STDOUT]: Testing slog info message")
-	lager.InfoIndent("[Output: FILE | STDOUT]: Testing lager indented info message", 1)
-	slog.Debug("[Output: FILE | STDERR]: Testing slog debug message")
-	lager.DebugIndent("[Output: FILE | STDERR]: Testing lager indented debug message", 1)
-	lager.Trace("[Output: FILE | STDERR]: Testing slog trace message")
-	lager.TraceIndent("[Output: FILE | STDERR]: Testing slog trace message", 1)
-	fmt.Printf("[Output: %-13s]: Ignore all slogging\n", "STDOUT")
-	fmt.Fprintf(os.Stderr, "[Output: %-13s]: Ignore all slogging\n", "STDERR")
+	slog.Error(fmt.Sprintf("[Output: %s | %s]: Testing slog error message using [%s]", cFile, cStderr, pp.Yellow("slog.Error")))
+	lager.ErrorIndent(fmt.Sprintf("[Output: %s | %s]: Testing slog error message using [%s]", cFile, cStderr, pp.Yellow("lager.ErrorIndent")), 1)
+	slog.Warn(fmt.Sprintf("[Output: %s | %s]: Testing slog warn message using [%s]", cFile, cStderr, pp.Yellow("slog.Warn")))
+	lager.WarnIndent(fmt.Sprintf("[Output: %s | %s]: Testing slog warn message using [%s]", cFile, cStderr, pp.Yellow("lager.WarnIndent")), 1)
+	slog.Info(fmt.Sprintf("[Output: %s | %s]: Testing slog info message using [%s]", cFile, cStdout, pp.Yellow("slog.Info")))
+	lager.InfoIndent(fmt.Sprintf("[Output: %s | %s]: Testing lager indented info message using [%s]", cFile, cStdout, pp.Yellow("lager.InfoIndent")), 1)
+	slog.Debug(fmt.Sprintf("[Output: %s | %s]: Testing slog debug message using [%s]", cFile, cStderr, pp.Yellow("slog.Debug")))
+	lager.DebugIndent(fmt.Sprintf("[Output: %s | %s]: Testing lager indented debug message using [%s]", cFile, cStderr, pp.Yellow("lager.DebugIndent")), 1)
+	lager.Trace(fmt.Sprintf("[Output: %s | %s]: Testing slog trace message using [%s]", cFile, cStderr, pp.Yellow("lager.Trace")))
+	lager.TraceIndent(fmt.Sprintf("[Output: %s | %s]: Testing slog trace message using [%s]", cFile, cStderr, pp.Yellow("lager.TraceIndent")), 1)
+	fmt.Printf("[Output: %s]: Ignore all slogging using [%s]\n", cStdout, pp.Yellow("fmt.Printf"))
+	fmt.Fprintf(os.Stderr, "[Output: %s]: Ignore all slogging using [%s]\n", cStderr, pp.Yellow("fmt.Fprintf"))
 	fmt.Print(pp.Cyan("\nFinished logging to various handlers."))
 }
 
+// readLogContents reads and prints the contents of the specified log file.
 func readLogContents(logFile string) {
 	fmt.Printf("\n\n")
 	fmt.Println(pp.Cyan("Contents of log file:"), pp.Green(logFile))

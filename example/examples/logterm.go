@@ -26,9 +26,29 @@ func LogTermStdoutOnlyExample() {
 	logTerm(lager.LevelInfo, false, true)
 }
 
+// LogTermDebugStdoutOnlyExample demonstrates logging only to stdout with debug level.
+func LogTermDebugStdoutOnlyExample() {
+	logTerm(lager.LevelDebug, false, true)
+}
+
+// LogTermTraceStdoutOnlyExample demonstrates logging only to stdout with trace level.
+func LogTermTraceStdoutOnlyExample() {
+	logTerm(lager.LevelTrace, false, true)
+}
+
 // LogTermStderrOnlyExample demonstrates logging only to stderr.
 func LogTermStderrOnlyExample() {
 	logTerm(lager.LevelInfo, true, false)
+}
+
+// LogTermDebugStderrOnlyExample demonstrates logging only to stderr with debug level.
+func LogTermDebugStderrOnlyExample() {
+	logTerm(lager.LevelDebug, true, false)
+}
+
+// LogTermTraceStderrOnlyExample demonstrates logging only to stderr with trace level.
+func LogTermTraceStderrOnlyExample() {
+	logTerm(lager.LevelTrace, true, false)
 }
 
 // logTerm sets up logging to terminal with specified level and output options.
