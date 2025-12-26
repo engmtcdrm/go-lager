@@ -74,7 +74,7 @@ func (h *FileHandler) Handle(ctx context.Context, r slog.Record) error {
 		if src == nil {
 			src = &slog.Source{}
 		}
-		buf = append(buf, slog.String(slog.SourceKey, fmt.Sprintf("- %s:%d", src.File, src.Line)).Value.String()...)
+		buf = append(buf, slog.String(slog.SourceKey, fmt.Sprintf("%s:%d", src.File, src.Line)).Value.String()...)
 		buf = append(buf, " - "...)
 	}
 
