@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	ex := eggy.NewExamplePrompt(examples.AllExamples).
-		Title(pp.Yellow("Examples of Lager Logging"))
-	ex.Show()
+	eggy.NewExamplePrompt(examples.AllExamples).
+		Title(pp.Yellow("Examples of Lager Logging")).
+		Show()
 }
