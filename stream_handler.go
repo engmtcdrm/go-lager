@@ -84,7 +84,7 @@ func (h *StreamHandler) Handle(ctx context.Context, r slog.Record) error {
 		buf = append(buf, " - "...)
 	}
 
-	if h.opts.AddLevel {
+	if h.opts.AddLevel && r.Level < LevelInfo {
 		levelStr := levelString(r.Level) + ": "
 		switch r.Level {
 		case LevelTrace:
@@ -109,7 +109,7 @@ func (h *StreamHandler) Handle(ctx context.Context, r slog.Record) error {
 		if src == nil {
 			src = &slog.Source{}
 		}
-		buf = append(buf, slog.String(slog.SourceKey, fmt.Sprintf("- %s:%d", src.File, src.Line)).Value.String()...)
+		buf = append(buf, slog.String(slog.SourceKey, fmt.Sprintf("%s:%d", src.File, src.Line)).Value.String()...)
 		buf = append(buf, " - "...)
 	}
 
