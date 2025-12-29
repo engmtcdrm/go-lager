@@ -35,7 +35,7 @@ type HandlerOptions struct {
 
 	// Level reports the minimum level to log.
 	// Levels with lower levels are discarded.
-	// If nil, the Handler uses [slog.LevelInfo].
+	// If nil, the Handler uses [LevelInfo].
 	// This field is ignored if Enablers is not nil.
 	Level slog.Leveler
 
@@ -46,7 +46,7 @@ type HandlerOptions struct {
 	Enablers []func(ctx context.Context, level slog.Level) bool
 
 	// ReplaceAttr is called to rewrite each non-group attribute before it is logged.
-	// The attribute's value has been resolved (see [Value.Resolve]).
+	// The attribute's value has been resolved (see [slog.Value.Resolve]).
 	// If ReplaceAttr returns a zero Attr, the attribute is discarded.
 	//
 	// The built-in attributes with keys "time", "level", "source", and "msg"
