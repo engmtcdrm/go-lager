@@ -1,4 +1,4 @@
-module example.com/example
+module github.com/engmtcdrm/go-lager/examples
 
 go 1.25
 

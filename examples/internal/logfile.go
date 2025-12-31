@@ -1,8 +1,10 @@
-package examples
+package internal
 
 import (
 	"fmt"
 	"log/slog"
+	"os"
+	"path"
 
 	"github.com/engmtcdrm/go-lager"
 	pp "github.com/engmtcdrm/go-prettyprint"
@@ -55,7 +57,17 @@ func LogFileTraceStderrOnlyExample() {
 
 // logFile sets up logging to a file with specified level.
 func logFile(level slog.Leveler, noStdout, noStderr bool) {
-	logFile := "___app.log"
+	tempDir, err := os.MkdirTemp("", "test-")
+	if err != nil {
+		panic(err)
+	}
+	defer func() {
+		if removeError := os.RemoveAll(tempDir); removeError != nil {
+			err = fmt.Errorf("failed to remove temp dir: %w", removeError)
+		}
+	}()
+
+	logFile := path.Join(tempDir, "___app.log")
 
 	fmt.Println("Initializing lager with log file:", pp.Cyan(logFile))
 	fmt.Println()

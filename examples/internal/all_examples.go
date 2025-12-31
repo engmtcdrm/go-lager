@@ -1,5 +1,5 @@
 // Package examples provides a collection of example functions demonstrating various API operations.
-package examples
+package internal
 
 import (
 	"github.com/engmtcdrm/go-eggy"

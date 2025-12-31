@@ -4,11 +4,11 @@ import (
 	"github.com/engmtcdrm/go-eggy"
 	pp "github.com/engmtcdrm/go-prettyprint"
 
-	"example.com/example/examples"
+	"github.com/engmtcdrm/go-lager/examples/internal"
 )
 
 func main() {
-	eggy.NewExamplePrompt(examples.AllExamples).
+	eggy.NewExamplePrompt(internal.AllExamples).
 		Title(pp.Yellow("Examples of Lager Logging")).
 		Show()
 }
