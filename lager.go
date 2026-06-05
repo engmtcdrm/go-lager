@@ -131,7 +131,7 @@ func (l *Lager) Init() (*os.File, error) {
 		handlers = append(handlers, handlerStderr)
 	}
 
-	handlerMulti := NewMultiHandler(handlers...)
+	handlerMulti := slog.NewMultiHandler(handlers...)
 	logger := slog.New(handlerMulti)
 	slog.SetDefault(logger)
 
