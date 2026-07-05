@@ -78,7 +78,7 @@ func (h *FileHandler) Handle(ctx context.Context, r slog.Record) error {
 		buf = append(buf, " - "...)
 	}
 
-	msg := ansi.StripCodes(r.Message)
+	msg := ansi.Strip(r.Message)
 	buf = append(buf, msg+"\n"...)
 
 	// Write to the file

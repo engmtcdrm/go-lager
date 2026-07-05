@@ -116,7 +116,7 @@ func (h *StreamHandler) Handle(ctx context.Context, r slog.Record) error {
 	buf = append(buf, r.Message+"\n"...)
 
 	if h.opts.NoColor {
-		buf = []byte(ansi.StripCodes(string(buf)))
+		buf = []byte(ansi.Strip(string(buf)))
 	}
 
 	// Write to stream
